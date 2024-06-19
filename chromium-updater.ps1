@@ -12,7 +12,7 @@ function Get-LatestVersionInfo {
         exit
     }
 
-    $latestVersion = $latestRelease.href -replace ".*\/releases\/tag\/v([^\/]+)-r.*-win64-avx2", '$1'
+    $latestVersion = $latestRelease.href -replace ".*\/releases\/tag\/v([^\/]+)-win64-avx2", '$1'
     $downloadURL = "$repoURL/download/v$latestVersion-win64-avx2/mini_installer.exe"
     
     return [PSCustomObject]@{
@@ -52,10 +52,11 @@ $installedVersion = Get-InstalledVersion
 $latestVersionInfo = Get-LatestVersionInfo
 
 # Compare versions and install if necessary
-if ($installedVersion -ne $latestVersionInfo.Version) {
+if ($installedVersion -eq $null -or 
+    $latestVersionInfo.Version -notlike "$installedVersion*") {
     Write-Output "Installing new version: $($latestVersionInfo.Version)"
     Install-LatestVersion -url $latestVersionInfo.DownloadURL -tempPath $tempDir
-    $latestVersionInfo.Version | Out-File -FilePath $versionFile -Force
+    Write-Output "Installation completed."
 } else {
     Write-Output "Latest version is already installed: $installedVersion"
 }
